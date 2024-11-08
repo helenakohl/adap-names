@@ -8,51 +8,70 @@ export class StringName implements Name {
     protected length: number = 0;
 
     constructor(other: string, delimiter?: string) {
-        throw new Error("needs implementation");
+        this.name = other;
+        if (delimiter) {
+            this.delimiter = delimiter;
+        }
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+        return this.getComponents().join(delimiter);
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation");
+        return this.getComponents().join(ESCAPE_CHARACTER + this.delimiter);
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation");
+        return this.name.length === 0;
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
+        return this.delimiter;
     }
 
     public getNoComponents(): number {
-        throw new Error("needs implementation");
+        return this.getComponents().length;
     }
 
     public getComponent(x: number): string {
-        throw new Error("needs implementation");
+        return this.getComponents()[x];
     }
 
     public setComponent(n: number, c: string): void {
-        throw new Error("needs implementation");
+        const components = this.getComponents();
+        components[n] = c; 
+        this.name = components.join(this.delimiter);
     }
 
     public insert(n: number, c: string): void {
-        throw new Error("needs implementation");
+        const components = this.getComponents();
+        if (n >= 0 && n <= components.length) {
+            components.splice(n, 0, c);
+            this.name = components.join(this.delimiter);
+        }
     }
 
     public append(c: string): void {
-        throw new Error("needs implementation");
+        this.name = this.name + this.delimiter + c;
     }
 
     public remove(n: number): void {
-        throw new Error("needs implementation");
+        const components = this.getComponents();
+        if (n >= 0 && n < components.length) {
+            components.splice(n, 1);
+            this.name = components.join(this.delimiter);
+        }
     }
 
     public concat(other: Name): void {
-        throw new Error("needs implementation");
+        for (let i = 0; i < other.getNoComponents(); i ++) {
+            this.append(other.getComponent(i));
+        }
+    }
+
+    public getComponents(): string[] {
+        return this.name.split(this.delimiter);
     }
 
 }
