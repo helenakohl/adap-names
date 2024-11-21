@@ -10,7 +10,7 @@ export class StringName extends AbstractName {
     constructor(other: string, delimiter?: string) {
         super();
         this.name = other;
-        this.length = this.getNoComponents();
+        this.noComponents = this.getNoComponents();
         if (delimiter) {
             this.delimiter = delimiter;
         }

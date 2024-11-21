@@ -9,10 +9,6 @@ export abstract class AbstractName implements Name {
         this.delimiter = delimiter;
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation");
-    }
-
     public asString(delimiter: string = this.delimiter): string {
         return this.getComponents().join(delimiter);
     }
