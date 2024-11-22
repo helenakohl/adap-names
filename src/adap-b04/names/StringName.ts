@@ -1,6 +1,7 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 
 export class StringName extends AbstractName {
 
@@ -9,67 +10,57 @@ export class StringName extends AbstractName {
 
     constructor(other: string, delimiter?: string) {
         super();
-        throw new Error("needs implementation");
+        // pre-conditions?
+        this.name = other;
+        this.noComponents = this.getNoComponents();
+        if (delimiter) {
+            this.delimiter = delimiter;
+        }
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation");
+    getNoComponents(): number {
+        return this.getComponents().length;
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+    getComponent(i: number): string {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertValidIndex(i);
+        return this.getComponents()[i];
     }
 
-    public toString(): string {
-        throw new Error("needs implementation");
+    setComponent(i: number, c: string) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        IllegalArgumentException.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidIndex(i);
+        const components = this.getComponents();
+        components[i] = c; 
+        this.name = components.join(this.delimiter);
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation");
+    insert(i: number, c: string) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        IllegalArgumentException.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidInsertIndex(i);
+        const components = this.getComponents();
+        components.splice(i, 0, c);
+        this.name = components.join(this.delimiter);
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation");
+    append(c: string) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.name = this.name + this.delimiter + c;
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation");
+    remove(i: number) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertValidIndex(i);
+        const components = this.getComponents();
+        components.splice(i, 1);
+        this.name = components.join(this.delimiter);
     }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation");
-    }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
-    }
-
-    public getNoComponents(): number {
-        throw new Error("needs implementation");
-    }
-
-    public getComponent(i: number): string {
-        throw new Error("needs implementation");
-    }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation");
+    getComponents(): string[] {
+        return this.name.split(this.delimiter);
     }
 
 }
