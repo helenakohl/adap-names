@@ -1,6 +1,5 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
-import { InvalidStateException } from "../common/InvalidStateException";
 import { MethodFailureException } from "../common/MethodFailureException";
 import { Name } from "./Name";
 
@@ -9,10 +8,12 @@ export abstract class AbstractName implements Name {
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
+        this.assertValidDelimiter(delimiter);
         this.delimiter = delimiter;
     }
 
     public asString(delimiter: string = this.delimiter): string {
+        this.assertValidDelimiter(delimiter);
         return this.getComponents().join(delimiter);
     }
 
@@ -41,7 +42,17 @@ export abstract class AbstractName implements Name {
     }
 
     public clone(): Name {
-        return { ...this };
+        const cloned = { ...this };
+
+        MethodFailureException.assertCondition(
+            cloned !== null && cloned !== undefined, 'cloned object cannot be null or undefined'
+        );
+
+        MethodFailureException.assertCondition(
+            cloned !== this, 'cloned object is not a clone'
+        );
+
+        return cloned;
     }
 
     public isEmpty(): boolean {
@@ -64,13 +75,36 @@ export abstract class AbstractName implements Name {
 
     public concat(other: Name): void {
         IllegalArgumentException.assertIsNotNullOrUndefined(other, 'other name cannot be null or undefined');
+
+        const initialCount = this.getNoComponents();
+        const otherCount = other.getNoComponents();
+
         for (let i = 0; i < other.getNoComponents(); i ++) {
             this.append(other.getComponent(i));
         }
+
+        MethodFailureException.assertCondition(
+            this.getNoComponents() === initialCount + otherCount,
+            "component count does not match the sum of both array's components"
+        );
     }
 
     abstract getComponents(): string[];
 
+    
+    // Pre-conditions
+    protected assertValidDelimiter(delimiter: string): void {
+        IllegalArgumentException.assertIsNotNullOrUndefined(delimiter, "delimiter cannot be null or undefined");
+        const condition = delimiter !== ESCAPE_CHARACTER && delimiter.length === 1;
+        IllegalArgumentException.assertCondition(condition, "delimiter is not valid");
+    }
+
+    protected assertValidName(c: string): void {
+        IllegalArgumentException.assertCondition(
+            !c.includes(this.delimiter) && !c.includes(ESCAPE_CHARACTER),
+            `name contains invalid characters: '${this.delimiter}' or '${ESCAPE_CHARACTER}'`
+        );
+    }
 
     protected assertValidIndex(i: number): void {
         IllegalArgumentException.assertCondition(
@@ -85,4 +119,5 @@ export abstract class AbstractName implements Name {
             `index ${i} is out of the range`
         );
     }
+
 }
