@@ -8,7 +8,6 @@ export abstract class AbstractName implements Name {
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
-        this.assertValidDelimiter(delimiter);
         this.delimiter = delimiter;
     }
 

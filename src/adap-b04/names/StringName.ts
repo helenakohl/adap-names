@@ -1,7 +1,6 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
-import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { MethodFailedException } from "../common/MethodFailedException";
 
@@ -15,6 +14,7 @@ export class StringName extends AbstractName {
         this.name = source;
         this.noComponents = this.getNoComponents();
         if (delimiter) {
+            this.assertValidDelimiter(delimiter);
             this.delimiter = delimiter;
         }
     }
@@ -32,6 +32,7 @@ export class StringName extends AbstractName {
     setComponent(i: number, c: string) {
         this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
         this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidName(c);
         this.assertValidIndex(i);
         const components = this.getComponents();
         components[i] = c; 
@@ -48,6 +49,7 @@ export class StringName extends AbstractName {
     insert(i: number, c: string) {
         this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
         this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidName(c); 
         this.assertValidInsertIndex(i);
 
         const initialCount = this.getNoComponents();
@@ -64,6 +66,7 @@ export class StringName extends AbstractName {
 
     append(c: string) {
         this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidName(c); 
 
         const initialCount = this.getNoComponents();
         this.name = this.name + this.delimiter + c;
