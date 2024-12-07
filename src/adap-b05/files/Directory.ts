@@ -1,4 +1,5 @@
 import { Node } from "./Node";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 
 export class Directory extends Node {
 
@@ -18,6 +19,19 @@ export class Directory extends Node {
 
     public removeChildNode(cn: Node): void {
         this.childNodes.delete(cn); // Yikes! Should have been called remove
+    }
+
+    public findNodes(bn: string): Set<Node> {
+        const results: Set<Node> = this.findNodes(bn); 
+    
+        for (const child of this.childNodes) {
+            const childMatches = child.findNodes(bn);
+            for (const match of childMatches) {
+                results.add(match);
+            }
+        }
+    
+        return results;
     }
 
 }

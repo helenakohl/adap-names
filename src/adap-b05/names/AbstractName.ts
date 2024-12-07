@@ -1,4 +1,6 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { Name } from "./Name";
 
 export abstract class AbstractName implements Name {
@@ -6,15 +8,12 @@ export abstract class AbstractName implements Name {
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+        this.delimiter = delimiter;
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+        this.assertValidDelimiter(delimiter);
+        return this.getComponents().join(delimiter);
     }
 
     public toString(): string {
@@ -22,24 +21,47 @@ export abstract class AbstractName implements Name {
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+        return this.getComponents().join(ESCAPE_CHARACTER + this.delimiter);
     }
 
     public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+        this.assertIsNotNullOrUndefined(other);
+        return this.asDataString() === other.asDataString();
     }
 
     public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+        let hashCode: number = 0;
+        const s: string = this.asDataString();
+        for (let i = 0; i < s.length; i++) {
+            let c = s.charCodeAt(i);
+            hashCode = (hashCode << 5) - hashCode + c;
+            hashCode |= 0;
+        }
+        return hashCode;
+    }
+
+    public clone(): Name {
+        const cloned = { ...this };
+
+        MethodFailedException.assert(
+            cloned !== null && cloned !== undefined, 'cloned object cannot be null or undefined'
+        );
+
+        MethodFailedException.assert(
+            cloned !== this, 'cloned object is not a clone'
+        );
+
+        return cloned;
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+        return this.getNoComponents() === 0;
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+        return this.delimiter;
     }
+
 
     abstract getNoComponents(): number;
 
@@ -51,7 +73,54 @@ export abstract class AbstractName implements Name {
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+        this.assertIsNotNullOrUndefined(other, 'other name cannot be null or undefined');
+
+        const initialCount = this.getNoComponents();
+        const otherCount = other.getNoComponents();
+
+        for (let i = 0; i < other.getNoComponents(); i ++) {
+            this.append(other.getComponent(i));
+        }
+
+        MethodFailedException.assert(
+            this.getNoComponents() === initialCount + otherCount,
+            "component count does not match the sum of both array's components"
+        );
+    }
+
+    abstract getComponents(): string[];
+
+    
+    // Pre-conditions
+    protected assertIsNotNullOrUndefined(o: Object | null, exMsg: string = "null or undefined"): void {
+        const condition = (o == undefined) || (o == null);
+        IllegalArgumentException.assert(!condition, exMsg);
+    }
+
+    protected assertValidDelimiter(delimiter: string): void {
+        const condition = delimiter !== ESCAPE_CHARACTER && delimiter.length === 1;
+        IllegalArgumentException.assert(condition, "delimiter is not valid");
+    }
+
+    protected assertValidName(c: string): void {
+        IllegalArgumentException.assert(
+            !c.includes(this.delimiter) && !c.includes(ESCAPE_CHARACTER),
+            `name contains invalid characters: '${this.delimiter}' or '${ESCAPE_CHARACTER}'`
+        );
+    }
+
+    protected assertValidIndex(i: number): void {
+        IllegalArgumentException.assert(
+            i >= 0 && i < this.getNoComponents(),
+            `index ${i} is out of the range`
+        );
+    }
+
+    protected assertValidInsertIndex(i: number): void {
+        IllegalArgumentException.assert(
+            i >= 0 && i <= this.getNoComponents(),
+            `index ${i} is out of the range`
+        );
     }
 
 }

@@ -1,6 +1,8 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { InvalidStateException } from "../common/InvalidStateException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export class StringName extends AbstractName {
 
@@ -9,63 +11,97 @@ export class StringName extends AbstractName {
 
     constructor(source: string, delimiter?: string) {
         super();
-        throw new Error("needs implementation or deletion");
+        this.name = source;
+        this.noComponents = this.getNoComponents();
+        if (delimiter) {
+            this.assertValidDelimiter(delimiter);
+            this.delimiter = delimiter;
+        }
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+    getNoComponents(): number {
+        return this.getComponents().length;
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+    getComponent(i: number): string {
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertValidIndex(i);
+        return this.getComponents()[i];
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+    setComponent(i: number, c: string) {
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidName(c);
+        this.assertValidIndex(i);
+        const components = this.getComponents();
+        components[i] = c; 
+        this.name = components.join(this.delimiter);
+
+        MethodFailedException.assert(
+            this.getComponent(i) === c,
+            `component at index ${i} was not set correctly`
+        );
+
+        this.assertStringNameInvariants();
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+    insert(i: number, c: string) {
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidName(c); 
+        this.assertValidInsertIndex(i);
+
+        const initialCount = this.getNoComponents();
+        const components = this.getComponents();
+        components.splice(i, 0, c);
+        this.name = components.join(this.delimiter);
+
+        MethodFailedException.assert(
+            this.getNoComponents() === initialCount + 1, 'component could not be inserted'
+        );
+
+        this.assertStringNameInvariants();
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+    append(c: string) {
+        this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertValidName(c); 
+
+        const initialCount = this.getNoComponents();
+        this.name = this.name + this.delimiter + c;
+
+        MethodFailedException.assert(
+            this.getNoComponents() === initialCount + 1, 'component could not be appended'
+        );
+
+        this.assertStringNameInvariants();
     }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+    remove(i: number) {
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertValidIndex(i);
+
+        const initialCount = this.getNoComponents();
+        const components = this.getComponents();
+        components.splice(i, 1);
+        this.name = components.join(this.delimiter);
+
+        MethodFailedException.assert(
+            this.getNoComponents() === initialCount - 1, 'component could not be removed'
+        );
+
+        this.assertStringNameInvariants();
     }
 
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+    getComponents(): string[] {
+        return this.name.split(this.delimiter);
     }
 
-    public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+    protected assertStringNameInvariants(): void {
+        InvalidStateException.assert(
+            this.name !== null && this.name !== undefined,
+            "name cannot not be null or undefined"
+        );
     }
-
-    public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
-    }
-
 }
