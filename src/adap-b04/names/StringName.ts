@@ -3,7 +3,7 @@ import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export class StringName extends AbstractName {
 
@@ -12,7 +12,7 @@ export class StringName extends AbstractName {
 
     constructor(source: string, delimiter?: string) {
         super();
-        this.name = other;
+        this.name = source;
         this.noComponents = this.getNoComponents();
         if (delimiter) {
             this.delimiter = delimiter;
@@ -24,20 +24,20 @@ export class StringName extends AbstractName {
     }
 
     getComponent(i: number): string {
-        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
         this.assertValidIndex(i);
         return this.getComponents()[i];
     }
 
     setComponent(i: number, c: string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
-        IllegalArgumentException.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
         this.assertValidIndex(i);
         const components = this.getComponents();
         components[i] = c; 
         this.name = components.join(this.delimiter);
 
-        MethodFailureException.assertCondition(
+        MethodFailedException.assert(
             this.getComponent(i) === c,
             `component at index ${i} was not set correctly`
         );
@@ -46,8 +46,8 @@ export class StringName extends AbstractName {
     }
 
     insert(i: number, c: string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
-        IllegalArgumentException.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
         this.assertValidInsertIndex(i);
 
         const initialCount = this.getNoComponents();
@@ -55,7 +55,7 @@ export class StringName extends AbstractName {
         components.splice(i, 0, c);
         this.name = components.join(this.delimiter);
 
-        MethodFailureException.assertCondition(
+        MethodFailedException.assert(
             this.getNoComponents() === initialCount + 1, 'component could not be inserted'
         );
 
@@ -63,12 +63,12 @@ export class StringName extends AbstractName {
     }
 
     append(c: string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(c, 'new component cannot be null or undefined');
 
         const initialCount = this.getNoComponents();
         this.name = this.name + this.delimiter + c;
 
-        MethodFailureException.assertCondition(
+        MethodFailedException.assert(
             this.getNoComponents() === initialCount + 1, 'component could not be appended'
         );
 
@@ -76,7 +76,7 @@ export class StringName extends AbstractName {
     }
 
     remove(i: number) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(i, 'component number cannot be null or undefined');
         this.assertValidIndex(i);
 
         const initialCount = this.getNoComponents();
@@ -84,7 +84,7 @@ export class StringName extends AbstractName {
         components.splice(i, 1);
         this.name = components.join(this.delimiter);
 
-        MethodFailureException.assertCondition(
+        MethodFailedException.assert(
             this.getNoComponents() === initialCount - 1, 'component could not be removed'
         );
 
@@ -96,7 +96,7 @@ export class StringName extends AbstractName {
     }
 
     protected assertStringNameInvariants(): void {
-        InvalidStateException.assertCondition(
+        InvalidStateException.assert(
             this.name !== null && this.name !== undefined,
             "name cannot not be null or undefined"
         );

@@ -1,6 +1,6 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { Name } from "./Name";
 
 export abstract class AbstractName implements Name {
@@ -19,7 +19,6 @@ export abstract class AbstractName implements Name {
 
     public toString(): string {
         return this.asDataString();
-        return this.asDataString();
     }
 
     public asDataString(): string {
@@ -27,7 +26,7 @@ export abstract class AbstractName implements Name {
     }
 
     public isEqual(other: Name): boolean {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other, 'other name cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(other);
         return this.asDataString() === other.asDataString();
     }
 
@@ -45,11 +44,11 @@ export abstract class AbstractName implements Name {
     public clone(): Name {
         const cloned = { ...this };
 
-        MethodFailureException.assertCondition(
+        MethodFailedException.assert(
             cloned !== null && cloned !== undefined, 'cloned object cannot be null or undefined'
         );
 
-        MethodFailureException.assertCondition(
+        MethodFailedException.assert(
             cloned !== this, 'cloned object is not a clone'
         );
 
@@ -75,7 +74,7 @@ export abstract class AbstractName implements Name {
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other, 'other name cannot be null or undefined');
+        this.assertIsNotNullOrUndefined(other, 'other name cannot be null or undefined');
 
         const initialCount = this.getNoComponents();
         const otherCount = other.getNoComponents();
@@ -84,7 +83,7 @@ export abstract class AbstractName implements Name {
             this.append(other.getComponent(i));
         }
 
-        MethodFailureException.assertCondition(
+        MethodFailedException.assert(
             this.getNoComponents() === initialCount + otherCount,
             "component count does not match the sum of both array's components"
         );
@@ -94,28 +93,31 @@ export abstract class AbstractName implements Name {
 
     
     // Pre-conditions
+    protected assertIsNotNullOrUndefined(o: Object | null, exMsg: string = "null or undefined"): void {
+        IllegalArgumentException.assert((o == undefined) || (o == null), exMsg);
+    }
+
     protected assertValidDelimiter(delimiter: string): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(delimiter, "delimiter cannot be null or undefined");
         const condition = delimiter !== ESCAPE_CHARACTER && delimiter.length === 1;
-        IllegalArgumentException.assertCondition(condition, "delimiter is not valid");
+        IllegalArgumentException.assert(condition, "delimiter is not valid");
     }
 
     protected assertValidName(c: string): void {
-        IllegalArgumentException.assertCondition(
+        IllegalArgumentException.assert(
             !c.includes(this.delimiter) && !c.includes(ESCAPE_CHARACTER),
             `name contains invalid characters: '${this.delimiter}' or '${ESCAPE_CHARACTER}'`
         );
     }
 
     protected assertValidIndex(i: number): void {
-        IllegalArgumentException.assertCondition(
+        IllegalArgumentException.assert(
             i >= 0 && i < this.getNoComponents(),
             `index ${i} is out of the range`
         );
     }
 
     protected assertValidInsertIndex(i: number): void {
-        IllegalArgumentException.assertCondition(
+        IllegalArgumentException.assert(
             i >= 0 && i <= this.getNoComponents(),
             `index ${i} is out of the range`
         );
