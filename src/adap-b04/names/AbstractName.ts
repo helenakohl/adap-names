@@ -94,7 +94,8 @@ export abstract class AbstractName implements Name {
     
     // Pre-conditions
     protected assertIsNotNullOrUndefined(o: Object | null, exMsg: string = "null or undefined"): void {
-        IllegalArgumentException.assert((o == undefined) || (o == null), exMsg);
+        const condition = (o == undefined) || (o == null);
+        IllegalArgumentException.assert(!condition, exMsg);
     }
 
     protected assertValidDelimiter(delimiter: string): void {
